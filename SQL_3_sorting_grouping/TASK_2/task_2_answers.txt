@@ -1,0 +1,73 @@
+TASK 2 ANSWERS:- 
+
+-----------------------------------------------------------
+SLEEP EFFICIENCY DATASET
+
+1. 
+SELECT ID, AVG(`Sleep duration`) AS 'avg_dur' FROM campusx.s_e 
+WHERE Gender = 'Male' AND `Sleep duration` >= 7.5 
+GROUP BY ID
+ORDER BY avg_dur DESC LIMIT 15
+
+2. 
+SELECT Gender, ROUND(AVG(`Sleep duration`*`Deep sleep percentage`/100),2) AS 'avg_deep_sleep_time' FROM campusx.s_e
+GROUP BY Gender
+
+3. 
+SELECT (`Light sleep percentage`*`Sleep duration`/100) AS 'light_sleep_dur', Age, `Deep sleep percentage` FROM campusx.s_e 
+WHERE `Deep sleep percentage` > 25 AND  `Deep sleep percentage` < 45 
+ORDER BY light_sleep_dur ASC LIMIT 10,20
+
+4. 
+SELECT `Exercise frequency`, `Smoking status`, 
+ROUND(AVG(`Deep sleep percentage`*`Sleep duration`/100)) AS 'avg_deep_sleep', 
+ROUND(AVG(`Light sleep percentage`*`Sleep duration`/100)) AS 'avg_light_sleep', 
+ROUND(AVG(`REM sleep percentage`*`Sleep duration`/100)) AS 'avg_REM_sleep'
+FROM campusx.s_e 
+GROUP BY `Exercise frequency`, `Smoking status`
+
+5. 
+SELECT Awakenings,
+ROUND(AVG(`Deep sleep percentage`*`Sleep duration`/100)) AS 'avg_deep_sleep', 
+ROUND(AVG(`Caffeine consumption`)) AS 'avg_caff_cons', 
+ROUND(AVG(`Alcohol consumption`)) AS 'avg_alc_cons'
+FROM campusx.s_e 
+WHERE `Exercise frequency` >= 3
+GROUP BY Awakenings 
+ORDER BY Awakenings DESC 
+
+-----------------------------------------------------------
+
+POWER GENERATION DATASET
+
+1.
+SELECT `Power Station`, ROUND(AVG(`Monitored Cap.(MW)`)) as 'avg' FROM campusx.pg 
+GROUP BY `Power Station` 
+HAVING avg BETWEEN 1000 AND 2000 AND COUNT(*) > 200 
+ORDER BY avg ASC
+
+-----------------------------------------------------------
+
+UNDERGRAD USA DATASET
+
+1.
+SELECT State, ROUND(AVG(Value),2) AS 'avg_value' FROM campusx.usa1
+WHERE Year IN (2013, 2017, 2021) AND Type = 'Public In-State'
+GROUP BY State
+HAVING COUNT(*) BETWEEN 6 AND 10
+ORDER BY avg_value ASC LIMIT 10
+
+2. 
+state where expense type is fee/tution, and type is public 
+SELECT State, ROUND(AVG(Value),2) AS 'avg_value' FROM campusx.usa1
+WHERE Type IN ('Public In-State' , 'Public Out-of-State')
+GROUP BY State
+ORDER BY avg_value ASC LIMIT 1
+
+3. 
+SELECT State, SUM(Value) AS 'total_value' FROM campusx.usa1
+WHERE Type = 'Private' AND Expense IN ('Fees/Tuition', 'Room/Board')
+GROUP BY State
+ORDER BY total_value DESC LIMIT 1,1
+
+-----------------------------------------------------------
