@@ -1,0 +1,177 @@
+SQL GROUPING + SORTING:- 
+--------------------------------------------------------------
+
+SORTING:- 
+
+IMPORTANT KEYWORDS:- 
+ORDER BY col_name DESC/ASC LIMIT number 
+
+ORDER BY ---> sorts the specified column
+ASC = Ascending
+DESC = Descending
+LIMIT = getting top n rows of the specified column during SELECT. 
+
+questions:- 
+
+1. find the top 5 Samsung phones with the biggest screen size
+SELECT * FROM campusx.smartphones WHERE brand_name = 'samsung' 
+ORDER BY screen_size DESC LIMIT 5 
+
+2. sort all the phones in descending order of the number of total cameras 
+total cameras = front + rear cameras
+SELECT num_front_cameras + num_rear_cameras AS 'total_cameras' FROM campusx.smartphones 
+ORDER BY total_cameras DESC
+
+3. sort data on the basis of ppi in decreasing order
+ppi already calculated before
+SELECT ppi FROM campusx.smartphones 
+ORDER BY ppi DESC
+
+4. find the phone with 2nd largest battery
+SELECT battery_capacity FROM campusx.smartphones
+ORDER BY battery_capacity DESC LIMIT 2
+SELECT * FROM campusx.smartphones WHERE battery_capacity = 21000
+
+above, you had to write 2 separate queries. BUT, it can also be included in single query:- 
+SELECT model, battery_capacity FROM campusx.smartphones
+ORDER BY battery_capacity DESC LIMIT 1,1
+
+LIMIT x,y:- 
+x = index position of that row, jisse apko start karna hai rows ko print karna. by default, it is 0, and hence it starts printing from index 0 or the first row. 
+y = from x, kitni rows ko print karna hai. 
+
+for this question, we want second largest, so x = index position 1 and y = 1 because only second largest needed, hence only 1 row needed. 
+
+5. find the name and rating of the worst rated apple phone
+SELECT model, rating FROM campusx.smartphones WHERE brand_name = 'apple' 
+ORDER BY rating ASC LIMIT 1
+
+6. sort phones alphabetically and then on the basis of rating in desc order
+SELECT * FROM campusx.smartphones 
+ORDER BY brand_name ASC, rating DESC
+
+7. sort phones alphabetically and then on the basis of price in ascending order
+SELECT * FROM campusx.smartphones 
+ORDER BY brand_name ASC, price ASC
+
+--------------------------------------------------------------
+
+GROUPING:- 
+
+KEYWORD :- GROUP BY 
+Whichever column name in the GROUP BY, the whole dataset of the table gets divided into the groups where groups are nothing but all unique values of the column specified during the GROUP BY. 
+
+questions:- 
+
+GROUP BY on single columns
+
+1. Group smartphones by brand and get the count, average price, max rating, avg screen size, and avg battery capacity
+SELECT brand_name, COUNT(*) AS 'no. of models', 
+ROUND(AVG(price),2) AS 'avg price', 
+MAX(rating) AS 'highest rating', 
+ROUND(AVG(screen_size),2), 
+ROUND(AVG(battery_capacity),2) AS 'avg battery capacity'
+FROM campusx.smartphones 
+GROUP BY brand_name
+
+2. Group smartphones by whether they have an NFC and get the average price and average rating V/S group smartphones by whether they have or don't have 5g phones and get average price and average rating
+SELECT has_nfc, 
+ROUND(AVG(price)) AS 'avg price' ,
+ROUND(AVG(rating)) AS 'avg rating'
+FROM campusx.smartphones 
+GROUP BY has_nfc
+
+SELECT has_5g, 
+ROUND(AVG(price)) AS 'avg price' ,
+ROUND(AVG(rating)) AS 'avg rating'
+FROM campusx.smartphones 
+GROUP BY has_5g
+
+GROUP BY on multiple columns:- 
+say, you are grouping 2 columns together:- 
+col 1 = 5 unique values
+col 2 = 4 unique values 
+total combinations of both = 5*4 = 20 
+hence, in this groupby, 20 rows. 
+if only single column groupby was there, then the no. of rows = no. of unique values in the column. 
+
+3. Group smartphones by the brand and processor brand and get the count of models and the average primary camera resolution (rear)
+SELECT brand_name, processor_brand, COUNT(*) AS 'no. of models', 
+ROUND(AVG(primary_camera_rear)) AS 'avg primary camera res (avg)'
+ FROM campusx.smartphones 
+GROUP BY brand_name, processor_brand
+
+
+4. Find the top 5 most costly phone brands
+SELECT brand_name, ROUND(AVG(price)) AS 'avg_price'
+FROM campusx.smartphones 
+GROUP BY brand_name
+ORDER BY avg_price DESC LIMIT 5
+
+
+5. Which brand makes the smallest-screen smartphones
+SELECT brand_name, ROUND(AVG(screen_size)) AS 'avg_size'
+FROM campusx.smartphones 
+GROUP BY brand_name
+ORDER BY avg_size ASC LIMIT 1
+
+6. Group smartphones by the brand, and find the brand with the highest number of models that have both NFC and an IR blaster
+SELECT brand_name, COUNT(model) AS 'count' FROM campusx.smartphones 
+WHERE has_nfc = 'True' AND has_ir_blaster = 'True'
+GROUP BY brand_name
+ORDER BY count DESC LIMIT 5
+
+7. Find all Samsung 5g enabled smartphones and find out the avg price for NFC and Non-NFC phones
+SELECT has_nfc, ROUND(AVG(price)) FROM campusx.smartphones WHERE brand_name = 'samsung' AND has_5g = 'True'
+GROUP  BY has_nfc 
+
+8. Find phone name and price of the costliest phone
+SELECT model, price FROM campusx.smartphones
+ORDER BY price DESC LIMIT 1 
+
+--------------------------------------------------------------
+
+HAVING:- 
+
+SELECT ---> WHERE (Condition to filter rows)
+GROUP BY ---> HAVING (Condition to filter rows after group by)
+
+1. Costliest Brand which has at least 20 phones.
+SELECT brand_name, COUNT(*) AS 'count', ROUND(AVG(price)) AS 'avg_price' FROM campusx.smartphones 
+GROUP BY brand_name 
+HAVING count > 20
+ORDER BY avg_price DESC LIMIT 1
+
+2. find the avg rating of smartphone brands that have more than 20 phones
+SELECT brand_name, COUNT(*) AS 'count', ROUND(AVG(rating)) AS 'avg_rating' FROM campusx.smartphones 
+GROUP BY brand_name 
+HAVING count > 20
+	
+3. Find the top 3 brands with the highest avg ram that has a refresh rate of at least 90 Hz and fast charging available and don't consider brands that have less than 10 phones
+SELECT brand_name, COUNT(*) AS 'count', ROUND(AVG(ram_capacity)) AS 'avg_ram' FROM campusx.smartphones 
+WHERE refresh_rate >= 90 AND fast_charging_available = 1
+GROUP BY brand_name 
+HAVING count >= 10
+ORDER BY avg_ram DESC LIMIT 3
+
+4. Find the avg price of all the phone brands with avg rating of 70 and num_phones more than 10 among all 5g enabled phones
+SELECT brand_name, ROUND(AVG(price)) AS 'avg_price'
+FROM campusx.smartphones 
+WHERE has_5g = 'True'
+GROUP BY brand_name 
+HAVING COUNT(*) > 10 AND ROUND(AVG(rating)) > 70
+
+NOTE:- in the output table, you only need to show what you are asked to. STRICTLY don't show any other column which is NOT asked.
+
+PRACTICE QUESTIONS (IPL DATASET):- 
+
+1. find the top 5 batsmen in IPL
+SELECT batter, SUM(batsman_run) AS 'runs' FROM campusx.ipl 
+GROUP BY batter
+ORDER BY runs DESC LIMIT 5
+
+2. find the 2nd highest 6 hitters in IPL
+SELECT batter, COUNT(*) AS 'sixes' FROM campusx.ipl 
+WHERE batsman_run = 6 AND non_boundary = 0
+GROUP BY batter
+ORDER BY sixes DESC LIMIT 1,1
