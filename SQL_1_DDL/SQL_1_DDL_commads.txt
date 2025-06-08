@@ -1,0 +1,185 @@
+DDL COMMANDS:-
+
+NOTE:- always, the keywords completely in uppercase and the variable names (database, tables, attributes of the tables) completely in lowercase. 
+
+--------------------------------------------------
+DATABASE COMMANDS:- 
+
+1. CREATE
+CREATE DATABASE IF NOT EXISTS campusx
+
+2. DROP
+DROP DATABASE IF EXISTS campus 
+
+--------------------------------------------------
+TABLE COMMANDS:- 
+
+1. CREATE
+syntax:- 
+CREATE TABLE table_name(
+col_name data_type,
+col_name data_type
+)
+
+example:- 
+CREATE TABLE users(
+user_id INTEGER,
+name VARCHAR(255),
+email VARCHAR(255),
+password VARCHAR(255)
+)
+
+2. TRUNCATE
+TRUNCATE TABLE users
+
+3. DROP
+DROP TABLE IF EXISTS users 
+
+--------------------------------------------------
+CONSTRAINTS:-
+
+1. NOT NULL
+CREATE TABLE users(
+user_id INTEGER NOT NULL,
+name VARCHAR(255) NOT NULL, 
+email VARCHAR(255),
+password VARCHAR(255)
+)
+
+2. UNIQUE
+CREATE TABLE users(
+user_id INTEGER NOT NULL,
+name VARCHAR(255) NOT NULL, 
+email VARCHAR(255) NOT NULL UNIQUE,
+password VARCHAR(255)
+)
+
+-> Another way of representing the CONSTRAINTS:- 
+syntax:- 
+CONSTRAINT name_of_constrait CONSTRAINT_TO_BE_APPLIED(col_name/s)
+
+example:- 
+CREATE TABLE users(
+user_id INTEGER NOT NULL,
+name VARCHAR(255) NOT NULL, 
+email VARCHAR(255) NOT NULL UNIQUE,
+password VARCHAR(255)
+
+CONSTRAINT make_unique UNIQUE(name, email, password)
+)
+
+3. PRIMARY KEY 
+CREATE TABLE users(
+user_id INTEGER NOT NULL PRIMARY KEY,
+name VARCHAR(255) NOT NULL, 
+email VARCHAR(255) NOT NULL UNIQUE,
+password VARCHAR(255)
+
+CONSTRAINT make_unique UNIQUE(name, email, password)
+CONSTRAINT make_pk PRIMARY KEY (user_id, name)
+)
+
+4. AUTO_INCREMENT
+CREATE TABLE users(
+user_id INTEGER PRIMARY KEY AUTO_INCREMENT,
+name VARCHAR(255) NOT NULL, 
+email VARCHAR(255) NOT NULL UNIQUE,
+password VARCHAR(255)
+)
+
+5. CHECK
+CREATE TABLE users(
+user_id INTEGER PRIMARY KEY AUTO_INCREMENT,
+name VARCHAR(255) NOT NULL, 
+age INTEGER CHECK (age>6 AND age<35)
+password VARCHAR(255)
+
+CONSTRAINT check_age CHECK (age>6 AND age<35)
+
+6. DEFAULT
+CREATE TABLE ticket(
+ticket_id INTEGER PRIMARY KEY,
+name VARCHAR(255) NOT NULL,
+travel_date DATETIME DEFAULT CURRENT_TIMESTAMP
+)
+
+7. FOREIGN KEY 
+CREATE TABLE customers (
+cid INTEGER PRIMARY KEY AUTO_INCREMENT,
+name VARCHAR(255) NOT NULL, 
+email VARCHAR(255) NOT NULL UNIQUE
+)
+
+CREATE TABLE orders(
+order_id INTEGER PRIMARY KEY AUTO_INCREMENT,
+cid INTEGER NOT NULL, 
+order_date DATETIME NOT NULL DEFAULT CURRENT_TIME
+
+CONSTRAINT orders_fk FOREIGN KEY (cid) REFERENCES customers  (cid)
+)
+
+--------------------------------------------------
+REFERENTIAL ACTIONS:-  
+
+1. RESTRICT:- 
+By default, when no referential action specified inside the child table (the one having foreign key)
+
+2. CASCADE:- 
+CREATE TABLE customers(
+cid INTEGER PRIMARY KEY AUTO_INCREMENT, 
+name VARCHSR(255) NOT NULL,
+email VARCHAR(255) NOT NULL UNIQUE
+)
+
+CREATE TABLE orders(
+order_id INTEGER PRIMARY KEY,
+cid INTEGER NOT NULL,
+order_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+CONSTRAINT orders_fk FOREIGN KEY (cid) REFERENCES customers(cid)
+ON DELETE CASCADE
+ON UPDATE CASCADE
+)
+
+--------------------------------------------------
+
+ALTER TABLE COMMANDS:- 
+
+1. ADD COLUMN 
+i) adding single column:- 
+syntax:- 
+ALTER TABLE table_name ADD COLUMN (just like you add column while creating table, write:-) col_name DATATYPE CONSTRAINT (if any)
+eg:-  
+ALTER TABLE customers ADD COLUMN password VARCHAR(255) NOT NULL  
+
+you can also position your newly added column inside the table:- 
+ALTER TABLE customers ADD COLUMN surname VARCHAR(255) NOT NULL AFTER name
+
+ii) adding multiple columns at once:- 
+ATLER TABLE customers
+ADD COLUMN pan_number VARCHAR(255) AFTER surname,
+ADD COLUMN joining_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP 
+
+2. DROP columns
+i) dropping single column:-
+ALTER TABLE customers DROP COLUMN pan_number
+
+ii) dropping multiple columns:- 
+ALTER TABLE customers 
+DROP COLUMN password, 
+DROP COLUMN joining_date
+
+3. MODIFY columns:- 
+eg:- i want to change the datatype of the surname from varchar to integer. 
+ALTER TABLE customers MODIFY COLUMN surname INTEGER
+
+--------------------------------------------------
+
+ADDING AND DELETING CONSTRAINTS (ALTER TABLE COMMANDS):-
+These come to play when the tables are already created and you want to add or delete constraints afterwards.  
+
+1. ADD CONSTRAINT
+ALTER TABLE customers ADD CONSTRAINT customer_age_check (age>35)
+
+2. DROP CONSTRAINT
+ALTER TABLE customers DROP CONSTRAINT customer_age_check
