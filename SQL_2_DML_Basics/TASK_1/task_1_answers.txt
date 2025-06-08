@@ -1,0 +1,38 @@
+TASK 1 ANSWERS:- 
+
+Q1) 
+SELECT * FROM campusx.insurance WHERE 
+gender = 'male' AND region = 'southwest'
+
+Q2) 
+SELECT * FROM campusx.insurance WHERE bmi >=30 AND bmi <=45
+
+Q3) 
+SELECT MIN(bloodpressure) AS MinBP, MAX(bloodpressure) AS MinBP FROM campusx.insurance;
+
+Q4) 
+SELECT COUNT(DISTINCT(PatientID)) FROM campusx.insurance WHERE region NOT IN ('southwest')
+
+Q5)
+SELECT SUM(claim) FROM campusx.insurance WHERE gender = 'male' AND smoker = 'Yes'
+
+Q6)
+SELECT * FROM campusx.insurance WHERE region IN ('southeast', 'southwest')
+
+Q7)
+SELECT COUNT(*) FROM campusx.insurance WHERE bloodpressure >= 90 AND bloodpressure <= 120 
+
+Q8)
+SELECT COUNT(*) FROM campusx.insurance WHERE age < 17 AND bloodpressure >= (80 + (age*2)) AND bloodpressure <= (100 + (age*2)) 
+
+Q9) 
+SELECT AVG(claim) FROM campusx.insurance WHERE gender = 'female' AND smoker = 'No' AND diabetic = 'Yes' 
+
+Q10) 
+UPDATE campusx.insurance
+SET PatientID = 5000
+WHERE PatientID = 1234
+
+Q11)
+DELETE FROM campusx.insurance
+WHERE smoker = 'Yes' AND children = 0 

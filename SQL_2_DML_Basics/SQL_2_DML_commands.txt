@@ -1,0 +1,224 @@
+DML COMMANDS:- (CRUD OPERATIONS)
+---------------------------------------------------------
+
+CREATE TABLE users(
+user_id INTEGER PRIMARY KEY AUTO_INCREMENT, 
+name VARCHAR(255) NOT NULL,
+email VARCHAR(255) NOT NULL UNIQUE,
+password VARCHAR(255) NOT NULL
+
+1. CREATE:- (INSERT)
+syntax:-
+INSERT INTO db.table_name (col_names) VALUE (values) 
+
+i) specifying column names:- 
+INSERT INTO campus.users (user_id, name, email, password) VALUES
+(NULL, 'bholu', 'bholu@gmail.com', '12345')
+
+NOTE:- column order doesn't matter. you can also do it like this:-
+INSERT INTO campus.users (name, user_id, password, email) VALUES
+('bholu', NULL, 12345, 'bholu@gmail.com')
+
+NOTE:- you can also enter values to selected columns only:-
+INSERT INTO campus.users (name, user_id) VALUES
+('bholu', NULL)
+
+ii) NOT specifying column names:- 
+INSERT INTO campus.users VALUES (NULL, 'bholu', 'bholu@gmail.com', '12345')
+
+drawback:- here, you have to specify each value of the respective column, and order MATTERS here, so you can't specify the values in order you like, but the order given in the table. 
+
+iii) multiple INSERTS:-
+INSERT INTO VALUES
+(NULL, 'bholu', 'bholu@gmail.com', '123456789'),
+(NULL, 'billu', 'billu@gmail.com', '12345678'),
+(NULL, 'dev', 'dev@gmail.com', '123456')
+
+---------------------------------------------------------
+
+2. RETRIEVE (SELECT):-
+this command is used for filtering rows and columns. 
+syntax:- 
+SELECT col_names FROM database.table_name WHERE row_condition
+
+i) select all (the whole table):- 
+SELECT * FROM campusx.smartphones WHERE 1 
+OR
+SELECT * FROM campusx.smartphones; 
+here * means all columns and 1 means all rows. 
+
+ii) filtering columns:- (taking all rows but just for the selected columns)
+
+- simple select
+SELECT os, model, battery_capacity FROM campusx.smartphones
+
+- you can also  rename the columns:- 
+SELECT os AS 'operating system, model, battery_capacity AS 'mAH' FROM campusx.smartphones
+
+- mathematical operations on the columns. 
+here, a whole new column is created from the column on which the operation was performed. 
+for eg:- i want to find the pixel per inch (ppi) of all smartphones. 
+ppi  = sqrt(res_width^2 + res_height^2)/screen_size
+
+SELECT model, SQRT(resolution_width*resolution_width + resolution_height*resolution_height)/screen_size AS 'ppi' WHERE 1
+
+here, we get 2 columns:- 
+model , SQRT(resolution_width*resolution_width + resolution_height*resolution_height)/screen_size
+
+after renaming:- 
+model, ppi 
+
+another eg:- i want model and their corresponding ratings in the scale of 10 (they originally are in the scale of 100):-
+
+SELECT model, rating/10 FROM campusx.smartphones;
+
+iii) finding unique values from columns:- 
+-single column:-
+SELECT DISTINCT(brand_name) AS 'All brands' FROM campusx.smartphones;
+
+-combination of unique columns:- 
+SELECT DISTINCT brand_name, processor_brand FROM campusx.smartphones;
+
+iv) filtering rows:- using WHERE clause:- 
+eg:- give data of all phones where brand is Samsung:- 
+SELECT * FROM campusx.smartphones WHERE brand_name = 'samsung'
+
+eg:- give data of all phones where price between 10000 and 20000:-
+approach 1:- 
+SELECT * FROM campusx.smartphones WHERE price>10000 AND price<20000
+OR
+approach 2:- 
+SELECT * FROM campusx.smartphones WHERE price BETWEEN 10000 AND 20000
+
+---------------------------------------------------------
+
+QUERY EXECUTION ORDER:- 
+order of execution (executes first to executes last):- 
+FROM
+JOIN
+WHERE 
+GROUP BY
+HAVING
+SELECT
+DISTINCT 
+ORDER BY
+
+F J W G H S D O 
+
+for eg:- 
+
+SELECT id, Ename FROM EMPLOYEE WHERE Salary > 30000
+first came FROM:- we selected the EMPLOYEE TABLE 
+then WHERE:- selected all rows where salary > 30000
+then at last, SELECT:- from all columns, only id and Ename got selected 
+
+eg question:- 
+find brands who sell phones with price > 50000:-
+order:- 
+1. FROM campusx.smartphones 
+2. WHERE prices > 50000
+3. SELECT DISTINCT (brand_names) 
+full query:- 
+SELECT DISTINCT (brand_names) FROM campusx.smartphones WHERE prices > 50000
+
+---------------------------------------------------------
+
+IN and NOT IN:- 
+eg:- give me all phones data, where processor brand is snapdragon, bionic, or dimensity:-
+
+SELECT * FROM campusx.smartphones WHERE processor_brand IN (snapdragon, bionic, dimensity) 
+
+---------------------------------------------------------
+
+UPDATE:- 
+syntax:- 
+UPDATE db.table_name
+SET 
+WHERE 
+
+i) single update:- 
+for eg:- update the value mediatek in processor_brand to dimensity
+UPDATE campusx.smartphones
+SET processor_brand = 'dimensity'
+WHERE processor_brand = 'mediatek'
+
+ii) multiple updates:- 
+UPDATE campusx.users
+SET email = 'bholu@gmail.com', password = '123456789' 
+WHERE name = 'Bholu' 
+
+---------------------------------------------------------
+
+DELETE:- (rows will be deleted, deleting just a single column value NOT possible)
+
+i) DELETE based on single condition:- 
+DELETE FROM campus.smartphones
+WHERE prices>20000 
+
+ii) DELETE based on multiple conditions:- 
+DELETE FROM campus.smartphones
+WHERE primary_camera_rear>150 AND brand_name = 'Samsung' 
+
+---------------------------------------------------------
+
+FUNCTIONS:- 
+types:- 
+1. scalar functions:- when function applied, each cell value of column will have its own output. 
+2. aggregate functions:- when function applied, only 1 value generated for the whole column.
+
+1) AGGREGATE FUNCTIONS:- 
+i) MAX/MIN:-
+for eg:- 
+SELECT MAX(PRICES) FROM campusx.smartphones
+
+question) find the costliest smartphone of Samsung:- 
+SELECT MAX(PRICES) FROM campus.smartphones WHERE brand_name = 'samsung'
+output = max price. 
+but the question say, we need to find the "smartphone" and NOT the max price.  
+so,
+SELECT * FROM campusx.smartphones WHERE price = max_price AND brand_name = 'samsung' 
+
+ii) AVG:-  
+find avg rating of apple phones:- 
+SELECT AVG(ratings) FROM campusx.smartphones WHERE brand_name = 'apple' 
+
+iii) SUM:- 
+SELECT SUM(price) FROM campusx.smartphones; 
+
+iv) COUNT
+eg:- find number of oneplus phones
+SELECT COUNT(*) FROM campusx.smartphones WHERE brand_name = 'oneplus' 
+
+v) COUNT(DISTINCT) (finding unique values) 
+eg:- find number of brands available
+SELECT COUNT(DISTINT(brand_names)) FROM campusx.smartphones; 
+
+vi) STD
+eg:- find std of screen sizes:-
+SELECT STD(screen_size) FROM campusx.smartphones; 
+
+vii) VAR
+SELECT VAR(screen_size) FROM campusx.smartphones; 
+
+2) SCALAR FUNCTIONS:- 
+i) ABS 
+SELECT ABS(prices - 200000) FROM campusx.smartphones; 
+
+ii) ROUND
+SELECT ROUND(ppi, 2) FROM campusx.smartphones;
+
+iii) CEIL/FLOOR
+SELECT CEIL(rating) FROM campusx.smartphones;
+
+
+
+
+
+
+
+
+
+
+
+
+
