@@ -1,0 +1,60 @@
+TASK 3 ANSWERS:-
+
+1. 
+SELECT t1.Country, SUM(A), SUM(D) FROM fr.country_ab t1
+JOIN fr.country_cd t2
+ON t1.Country = t2.Country AND t1.Edition = t2.Edition
+GROUP BY t1.Country 
+ORDER BY SUM(A) + SUM(B) DESC LIMIT 10
+
+2.
+SELECT t2.Region, MAX(t1.CL) AS 'max_cl' FROM fr.country_cl t1
+JOIN fr.country_cd t2
+ON t1.Country = t2.Country 
+WHERE t2.Edition = 2020
+GROUP BY t2.Region
+ORDER BY max_cl DESC 
+
+NOTE:- salespersonid and empid are both the same only. 
+
+3. 
+SELECT t1.Name, SUM(t2.Quantity) AS 'quantity' FROM custinfo.products t1
+JOIN custinfo.sales t2
+ON t1.ProductID = t2.ProductID
+GROUP BY t1.Name
+ORDER BY quantity DESC LIMIT 5
+
+4. 
+SELECT t2.SalesPersonID, SUM(t2.Quantity) AS 'quantity' FROM custinfo.products t1
+JOIN custinfo.sales t2
+ON t1.ProductID = t2.ProductID
+GROUP BY t2.SalesPersonID
+ORDER BY quantity DESC LIMIT 5
+
+5. 
+SELECT CONCAT(t1.FirstName, ' ', t1.LastName) AS 'name', COUNT(t2.CustomerID) AS 'count' FROM custinfo.employees t1
+JOIN custinfo.sales t2
+ON t1.EmployeeID = t2.SalesPersonID
+GROUP BY name
+ORDER BY count DESC LIMIT 1
+
+6. 
+SELECT t2.SalesPersonID, ROUND(SUM(t2.Quantity * t1.Price),2) AS 'revenue' FROM custinfo.products t1
+JOIN custinfo.sales t2
+ON t1.ProductID = t2.ProductID
+GROUP BY t2.SalesPersonID
+ORDER BY revenue DESC LIMIT 5
+
+7. 
+SELECT CONCAT(t1.FirstName, ' ', t1.LastName) AS 'name', SUM(t2.Quantity) AS 'quantity' FROM custinfo.customers t1
+JOIN custinfo.sales t2
+ON t1.CustomerID = t2.CustomerID
+GROUP BY name 
+HAVING quantity > 10
+
+8.
+SELECT t1.EmployeeID, COUNT(t2.CustomerID) AS 'count' FROM custinfo.employees t1
+JOIN custinfo.sales t2
+ON t1.EmployeeID = t2.SalesPersonID
+GROUP BY t1.EmployeeID
+HAVING count > 5

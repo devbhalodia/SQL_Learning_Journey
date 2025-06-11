@@ -1,0 +1,99 @@
+SQL JOINS:- 
+ 
+---------------------------------------------------------------------
+
+NOTE:- 
+sql_cx_live is the database having different tables. 
+t ----> the table name we gave to an already existing table. 
+for eg:- sql_cx_live.users ----> t1 
+this is done so that, when applying conditions, you don't have to specify the full sql_cx_live.users but just t1. (shorthand)
+
+syntax:- 
+SELECT * FROM db.table_name1 t1 
+JOIN_TYPE db.table_name2 t2 
+ON t1.col_name = t2.col_name  ----> this line only for those joins where condition required (matching columns)
+
+1. CROSS JOIN:- (no conditions required)
+SELECT * FROM sql_cx_live.users t1 
+CROSS JOIN sql_cx_live.groups t2 
+
+2. INNER JOIN:- 
+SELECT * FROM sql_cx_live.members t1 
+INNER JOIN sql_cx_live.users t2 
+ON t1.user_id = t2.user_id
+
+NOTE:- for all the joins requiring conditions (ON), there needs to be at least one matching column in both the 
+tables that are to be joined. otherwise, NOT POSSIBLE. 
+
+3. LEFT JOIN:- 
+SELECT * FROM sql_cx_live.members t1 
+LEFT JOIN sql_cx_live.users t2 
+ON t1.user_id = t2.user_id
+
+4. RIGHT JOIN:- 
+SELECT * FROM sql_cx_live.members t1 
+RIGHT JOIN sql_cx_live.users t2 
+ON t1.user_id = t2.user_id
+
+5. FULL OUTER JOIN:- 
+SELECT * FROM sql_cx_live.members t1 
+FULL OUTER JOIN sql_cx_live.users t2 
+ON t1.user_id = t2.user_id
+
+WRONG!!!! In MySQL, there is no readymade join for full outer join. we need to manually code it. 
+
+---------------------------------------------------------------------
+
+SET operations:-
+
+I. UNION:- 
+SELECT * FROM sql_cx_live.person1
+UNION
+SELECT * FROM sql_cx_live.person2
+
+II. UNION ALL:- 
+SELECT * FROM sql_cx_live.person1
+UNION ALL
+SELECT * FROM sql_cx_live.person2
+
+III. INTERSECT:- 
+SELECT * FROM sql_cx_live.person1
+INTERSECT 
+SELECT * FROM sql_cx_live.person2
+
+IV. EXCEPT:- 
+SELECT * FROM sql_cx_live.person1
+EXCEPT 
+SELECT * FROM sql_cx_live.person2
+
+---------------------------------------------------------------------
+
+5. FULL OUTER JOIN:- 
+how to do:- 
+LEFT JOIN (UNION) RIGHT JOIN
+
+SELECT * FROM sql_cx_live.membership t1 
+LEFT JOIN sql_cx_live.users t2
+ON t1.user_id = t2.user_id
+UNION
+SELECT * FROM sql_cx_live.membership t1 
+RIGHT JOIN sql_cx_live.users t2
+ON t1.user_id = t2.user_id
+
+6. SELF JOIN:-
+to check which user is the emergency contact of the user we currently are on, i.e., user which is subject of interest:- 
+SELECT * FROM sql_cx_live.users t1
+JOIN sql_cx_live users t2
+ON t1.emergency_contact = t2.user_id
+
+---------------------------------------------------------------------
+
+JOINING based on more that one column in the condition:-
+Problem:- the teachers change year by year. so, iif I join only with class id, I won't get accurate info as some teachers might get repeated even if they were present before in a particular year. hence, having the year in the condition is also equally important. 
+SELECT * FROM sql_cx_live.students t1
+JOIN sql_cx_live.class t2
+ON t1.class_id = t2.class_id
+AND t1.enrollment_year = t2.class_year 
+
+
+
