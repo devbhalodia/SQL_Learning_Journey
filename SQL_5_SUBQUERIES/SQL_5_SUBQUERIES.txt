@@ -1,0 +1,148 @@
+INDEPENDENT SUBQUERIES:- 
+
+NOTE:- the mistake i was doing was that i was using aggregate functions inside the WHERE clause like:-
+WHERE AVG(score), which threw error. aggregate functions can be used in the SELECT clause. 
+i can't simply do:- 
+select movie_name from ____ where rating > avg(rating) 
+this is because where is executed first as you can clearly see that it comes first. it will find avg(rating) col in the table but as it is non existing, it throws error. 
+i can't even do this:-
+select movie_name, avg(rating) from ____ where rating > avg(rating)
+because now, now error but i don't need avg(rating) column in my final output. 
+
+
+HOW TO SOLVE SUBQUERIES QUESTION:- 
+step 1:- figure out what you want firstly. for eg:- i want movie with highest profit. here, what i want is highest profit, after which, on matching this value with profits of every movie, i can get that movie. 
+
+step 2:- after computing what you wanted first, this query becomes your subquery. Copy it completely inside the WHERE of the parent query (which gives the movie name as the result). 
+
+I) SCALAR SUBQUERY:- 
+
+q1) movie name with highest profit
+1. SELECT * FROM movies.movies WHERE (gross - budget) = (SELECT MAX(gross - budget) FROM movies.movies)
+
+q2) number of movies with rating greater than avg rating. 
+2. SELECT COUNT(*) FROM movies.movies WHERE score > (SELECT AVG(score) FROM movies.movies)
+
+q3) name of movies with highest rating, in the year 2000
+3. SELECT name, year FROM movies.movies WHERE score = (SELECT MAX(score) FROM movies.movies WHERE year = 2000) AND year = 2000
+
+q4) highest rated movie name among all movies whose number of votes > avg votes of dataset. 
+4. SELECT name FROM movies.movies WHERE score = (SELECT MAX(score) FROM movies.movies WHERE votes > (SELECT AVG(votes) FROM movies.movies))
+
+II) ROW SUBQUERY:- 
+
+q1) number of users who did not place any orders. 
+1. SELECT * FROM zomato.users WHERE user_id NOT IN (SELECT DISTINCT(user_id) FROM zomato.orders)
+
+q2) find all movies made by top 3 directors according to their gross profits 
+2. SELECT name FROM movies.movies WHERE director IN (SELECT director FROM movies.movies
+GROUP BY director
+ORDER BY SUM(gross - budget) DESC LIMIT 3)
+
+ABOVE query is WRONG and NOT supported by the MySQL. this is because ORDER BY can't be used in the subquery. 
+
+ALTERNATIVE:- 
+
+WITH top_dir AS (SELECT director FROM movies.movies
+GROUP BY director
+ORDER BY SUM(gross - budget) DESC LIMIT 3)
+
+SELECT name FROM movies.movies WHERE director IN (SELECT * FROM top_dir)
+
+q3) find all movies of those all those actors whose filmography's avg rating > 8.5 (take 25000 votes as cut off)
+3. SELECT name FROM movies.movies WHERE star in (SELECT star FROM movies.movies WHERE score > (SELECT AVG(score) FROM movies.movies)) AND votes > 25000
+
+III) TABLE SUBQUERY:- 
+
+1. find most profitable movie of each year 
+subquery:- 
+SELECT year, MAX(gross - budget) AS 'profit' FROM movies.movies 
+GROUP BY year; 
+
+full query:- 
+SELECT name,year FROM movies.movies WHERE (year, (gross - budget)) IN (SELECT year, MAX(gross - budget) AS 'profit' FROM movies.movies 
+GROUP BY year)
+
+2. find the highest rated movie of each genre. votes cutoff of 25000
+inner query:- 
+SELECT genre, MAX(score) FROM movies.movies 
+WHERE votes > 25000
+GROUP BY genre;
+
+full query:- 
+SELECT * FROM movies.movies WHERE (genre, score) IN (SELECT genre, MAX(score) FROM movies.movies 
+WHERE votes > 25000 GROUP BY genre) AND votes > 25000
+
+3. find highest grossing movies of top 5 actor/director combo in terms of total gross income 
+WITH top_act_dir AS (
+  SELECT star, director
+  FROM movies.movies 
+  GROUP BY star, director 
+  ORDER BY SUM(gross - budget) DESC 
+  LIMIT 5
+)
+
+SELECT name FROM movies.movies WHERE (star, director) IN (SELECT * FROM top_act_dir)
+
+CORRELATED SUBQUERIES:- 
+
+1. Find all movies that have a rating higher than the avg rating of movies in the same genre. 
+intuition of the question:- 
+for eg:- the conjuring = horror genre. 
+this movie will be displayed only if the rating of this movie is higher than the avg rating of all movies in horror genre. 
+
+how to go about this question:- 
+what we basically want:- 
+SELECT * FROM movies 
+WHERE score > AVG of that genre
+
+here, the genre of the inner and outer query should be the same, as in the outer query, we are taking each row, and comparing it with each row inside the inner query. in short, you can understand this as a nested for loop where, in the outer loop, we take each row, and this row, compared with all other rows inside the inner query and ONLY those rows considered jiska genre is the same as that of genre of the row in the outer query. when genre is same, we simply compare the rating of outer query row with the avg rating of the genre. 
+
+
+we first need to find avg rating of each genre:- 
+SELECT AVG(score) FROM movies.movies WHERE genre = outer query row ka genre. 
+
+outer query:- 
+SELECT * FROM movies.movies WHERE score > AVG of that genre
+
+now AVG of that genre becomes: SELECT AVG(score) FROM movies.movies WHERE genre = outer query row ka genre. 
+
+so:-
+SELECT * FROM movies.movies 
+WHERE score > (SELECT AVG(score) FROM movies.movies WHERE genre = outer query genre)
+
+how to do it?
+
+SELECT * FROM movies.movies m1
+WHERE score > (SELECT AVG(score) FROM movies.movies m2 WHERE m2.genre = m1.genre)
+
+
+2. Find the favourite food of each customer. 
+
+we calculate fav food on the basis of how many times that person ordered the same food. 
+
+using the Zomato dataset.
+
+WITH fav_food AS (
+SELECT user_id, name, f_name, COUNT(*) AS frequency from Zomato.combined_table
+GROUP BY user_id, f_id
+)
+
+so now we have name of person, food name, user_id, and freq of orders
+eg:- 
+1 dev burger 5 
+1 dev pizza  6
+1 dev coke   3 
+
+so now, i want to have fav order of dev, which visibly is pizza as it being the most frequent order. 
+
+SELECT * FROM fav_food f1
+WHERE frequency = (SELECT MAX(frequency) FROM fav_food f2 WHERE f2.user_id = f1.user_id)
+
+in all correlated subqueries, there will be value comparison like f2.user_id = f1.user_id in the inner query. you  need to identify which values to compare. above, we took freq of user id 1 and compared with max freq of rows having the same user_id only. we don't want to compare the max freq of some other user. 
+
+
+
+
+
+
